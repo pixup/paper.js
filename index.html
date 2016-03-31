@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta name="keywords" content="paper.js, canvas, HTML5, CSS3, javascript" />
+		<meta name="description" content="Pinocchio avec Paper.js" />
+		<meta name="geo.placename" content="Paris, Ile-de-France, France">
+		<meta content="minimum-scale=0.6, width=device-width, maximum-scale=0.6, user-scalable=no" name="viewport" />
+		<meta name="revisit-after" content="2" />
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<script   src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
+		<script type="text/javascript" src="js/paper.js"></script>
+		<title>Pinocchio avec Paper.js - Pixup</title>
+	</head>
+	<body>
+		<canvas id="pinocchio"></canvas>
+		<img src="images/francois_hollande.png" id="perso" />
+		
+		<script>
+			function isCanvasSupported(){
+				var elem = document.createElement('canvas');
+				return !!(elem.getContext && elem.getContext('2d'));
+			}
+			if (!isCanvasSupported()){
+				alert("Désolé, vous devez utiliser un navigateur compatible HTML pour utiliser ce module...");
+			}
+		</script>
+
+		<script type="text/paperscript" canvas="pinocchio">
+			var $window=$(window);
+			view.viewSize = [$window.width(), $window.height()];
+			var radiuses = [5, 7, 9, 10, 12, 14, 16, 18, 21, 23, 25, 26,28, 30, 32, 34, 36, 39, 42, 44, 51, 58, 67, 76, 86, 100, 125, 150, 175, 200, 240, 420];
+			var mousePoint = view.center;
+			var rotateVal=5;
+
+			for (var i = 0; i < radiuses.length; i++) {
+				var radius = radiuses[radiuses.length - 1 - i];
+				var path = new Path.Circle(view.center, radius);
+				var raster = new Raster("perso");
+				raster.position = view.center;
+				var group = new Group([path, raster]);
+				group.clipped = true;
+				console.log(group);
+			}
+
+			$(window).resize(function() {
+				view.viewSize = [$window.width(), $window.height()];
+			});
+			
+			function onMouseMove(event) {
+				if (event.point.isInside(view.bounds)) {
+					mousePoint = event.point;
+				}
+				else{
+					mousePoint=view.center;
+				}
+			}
+
+			function onFrame(event) {
+				var children = project.activeLayer.children;
+				for (var i = 0; i < radiuses.length; i++) {
+					var item = children[i];
+					var angle = Math.sin(event.count / rotateVal);
+					item.rotate(angle);
+					var delta = (mousePoint - item.position) / (radiuses.length - i) *1.5;
+					if (delta.length > 0.1) {
+				   		item.position += delta;
+					}
+				}
+			}
+		</script>
+	</body>
+</html>
